@@ -1,10 +1,14 @@
-# Reproducible NYC Short-Term Rental Pricing Pipeline (MLflow + Hydra + W&B)
+<div align="center">
+  <img src="assets/hero-banner.svg" alt="NYC Rental Pricing MLflow Pipeline" width="100%" />
+  <br/><br/>
+  ![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)
+  ![MLflow](https://img.shields.io/badge/MLflow-Multi--Step%20DAG-0194E2?style=flat-square&logo=mlflow&logoColor=white)
+  ![Hydra](https://img.shields.io/badge/Hydra-Config%20%26%20Sweeps-89B4FA?style=flat-square)
+  ![Weights & Biases](https://img.shields.io/badge/W%26B-Artifact%20Lineage-FFBE00?style=flat-square&logo=weightsandbiases&logoColor=black)
+  ![License](https://img.shields.io/badge/License-MIT-slate?style=flat-square)
+</div>
 
-![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)
-![MLflow](https://img.shields.io/badge/MLflow-Multi--Step%20DAG-0194E2?style=flat-square&logo=mlflow&logoColor=white)
-![Hydra](https://img.shields.io/badge/Hydra-Config%20%26%20Sweeps-89B4FA?style=flat-square)
-![Weights & Biases](https://img.shields.io/badge/W%26B-Artifact%20Lineage-FFBE00?style=flat-square&logo=weightsandbiases&logoColor=black)
-![License](https://img.shields.io/badge/License-MIT-slate?style=flat-square)
+---
 
 End-to-end reproducible machine learning workflow for predicting nightly short-term rental prices across New York City's five boroughs (`$10–$1,000/night`). Orchestrated as a multi-environment **MLflow Project** parameterized with **Hydra** (`-m` grid sweeps), tracked end-to-end with **Weights & Biases** data/model lineage, and guarded by automated **Pytest + SciPy KL-divergence** statistical data contracts.
 
