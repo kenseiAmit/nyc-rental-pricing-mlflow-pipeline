@@ -1,11 +1,13 @@
 <div align="center">
   <img src="assets/hero-banner.svg" alt="NYC Rental Pricing MLflow Pipeline" width="100%" />
   <br/><br/>
-  ![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)
-  ![MLflow](https://img.shields.io/badge/MLflow-Multi--Step%20DAG-0194E2?style=flat-square&logo=mlflow&logoColor=white)
-  ![Hydra](https://img.shields.io/badge/Hydra-Config%20%26%20Sweeps-89B4FA?style=flat-square)
-  ![Weights & Biases](https://img.shields.io/badge/W%26B-Artifact%20Lineage-FFBE00?style=flat-square&logo=weightsandbiases&logoColor=black)
-  ![License](https://img.shields.io/badge/License-MIT-slate?style=flat-square)
+  <p>
+    <img src="https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&amp;logo=python&amp;logoColor=white" alt="Python" />
+    <img src="https://img.shields.io/badge/MLflow-Multi--Step%20DAG-0194E2?style=flat-square&amp;logo=mlflow&amp;logoColor=white" alt="MLflow" />
+    <img src="https://img.shields.io/badge/Hydra-Config%20%26%20Sweeps-89B4FA?style=flat-square" alt="Hydra" />
+    <img src="https://img.shields.io/badge/W%26B-Artifact%20Lineage-FFBE00?style=flat-square&amp;logo=weightsandbiases&amp;logoColor=black" alt="Weights &amp; Biases" />
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-475569?style=flat-square" alt="License" /></a>
+  </p>
 </div>
 
 ---
