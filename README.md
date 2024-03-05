@@ -1,76 +1,81 @@
 # Reproducible NYC Short-Term Rental Pricing Pipeline (MLflow + Hydra + W&B)
 
-End-to-end reproducible machine learning workflow for predicting nightly short-term rental prices across New York City's five boroughs, orchestrated via **MLflow Projects**, **Hydra** hierarchical configuration & multi-run hyperparameter sweeps, **Weights & Biases** artifact lineage tracking, and **Pytest + SciPy KL-divergence** automated data validation gates.
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)
+![MLflow](https://img.shields.io/badge/MLflow-Multi--Step%20DAG-0194E2?style=flat-square&logo=mlflow&logoColor=white)
+![Hydra](https://img.shields.io/badge/Hydra-Config%20%26%20Sweeps-89B4FA?style=flat-square)
+![Weights & Biases](https://img.shields.io/badge/W%26B-Artifact%20Lineage-FFBE00?style=flat-square&logo=weightsandbiases&logoColor=black)
+![License](https://img.shields.io/badge/License-MIT-slate?style=flat-square)
+
+End-to-end reproducible machine learning workflow for predicting nightly short-term rental prices across New York City's five boroughs (`$10–$1,000/night`). Orchestrated as a multi-environment **MLflow Project** parameterized with **Hydra** (`-m` grid sweeps), tracked end-to-end with **Weights & Biases** data/model lineage, and guarded by automated **Pytest + SciPy KL-divergence** statistical data contracts.
 
 ---
 
-## Pipeline Performance & Data Gate Validation
+## 1. Hydra Sweep, Held-Out Test & Data-Gate Retraining Benchmarks
 
-| Evaluation Stage | Dataset / Artifact | Mean Absolute Error (MAE) | $R^2$ Score | Notes |
-| :--- | :--- | :---: | :---: | :--- |
-| **Production Model (`v1.0.0`)** | Held-out `test_data.csv` | **`$33.24` / night** | **`0.5777`** | Multimodal `RandomForestRegressor` + TF-IDF pipeline |
-| **Data Gate Catch (`sample2.csv`)** | Pre-split `data_check` | *Halted cleanly* | — | `test_proper_boundaries` caught out-of-box GPS rows |
-| **Retrained Release (`v1.0.1`)** | `sample2.csv` Validation | **`$32.42` / night** | **`0.5799`** | Enforced NYC bounding box `[-74.25..-73.50, 40.5..41.2]` |
+![Hydra Sweep & Champion Benchmark](images/hydra_sweep_benchmark.png)
 
-![Feature Importance](images/feature_importance.png)
+| W&B Run ID | Pipeline Stage / Experiment | Split | MAE (`$/night`) | $R^2$ Score | Status |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `rhbtd3xn` | Hydra Sweep (`max_depth=10, max_features=0.3`) | Val | `$34.13` | `0.5519` | Logged |
+| `d6iy3dld` | Hydra Sweep (`max_depth=20, max_features=0.3`) | Val | `$34.12` | `0.5553` | Logged |
+| `ytbddfad` | Hydra Sweep (`max_depth=15, max_features=0.5`) | Val | `$33.98` | `0.5609` | Logged |
+| `k5w553gw` | Hydra Sweep Champion (`max_depth=20, max_features=0.5`) | Val | `$33.94` | `0.5598` | Promoted `:prod` |
+| **`j96yazwl`** | **`test_regression_model` (`v1.0.0` Champion)** | **Test** | **`$33.24`** | **`0.5777`** | **Verified Release `v1.0.0`** |
+| — | `data_check` on `sample2.csv` (Pre-Fix) | Gate | *Blocked* | — | Caught corrupted GPS rows outside NYC |
+| **`j3h6yvra`** | **Retrained `sample2.csv` (`v1.0.1` Geo-Bounded)** | **Val** | **`$32.42`** | **`0.5799`** | **Verified Release `v1.0.1`** |
+
+Full run telemetry is archived in [`reports/wandb_evaluation_summary.json`](reports/wandb_evaluation_summary.json).
 
 ---
 
-## Multi-Step MLflow DAG
+## 2. Exploratory Spatial & Distribution Analysis (`EDA.ipynb`)
+
+### Geospatial Price Topology Across NYC Boroughs & Random Forest Feature Importances
+| NYC Geospatial Listing Price Map | Exported Multimodal Feature Importances |
+| :---: | :---: |
+| ![NYC Geospatial Map](images/nyc_geospatial_price_map.png) | ![Feature Importance](images/feature_importance.png) |
+
+### Nightly Price Tail Filtering & Borough × Room-Type Segmentation
+![Price Distribution](images/price_distribution.png)
+![Borough & Room Type Breakdown](images/borough_room_type_breakdown.png)
+
+---
+
+## 3. Reproducible Multi-Step MLflow DAG & Data Contracts
 
 ```mermaid
 flowchart LR
-    A["get_data<br/>(W&B raw_data)"] --> B["basic_cleaning<br/>(Outlier & NYC Geo Bounds)"]
-    B --> C["data_check<br/>(Pytest Schema + KL Divergence <= 0.2)"]
-    C --> D["train_val_test_split<br/>(Stratified Splits)"]
-    D --> E["train_random_forest<br/>(TF-IDF + Spatial/Temporal + RF)"]
-    E --> F["test_regression_model<br/>(Champion Evaluation on Test Split)"]
+    A["get_data<br/>(sample.csv -> W&B raw_data)"] --> B["basic_cleaning<br/>($10..$1000 + NYC Bounding Box)"]
+    B --> C["data_check<br/>(5 Pytest + KL Divergence Gates)"]
+    C --> D["train_val_test_split<br/>(Stratified Train/Val/Test)"]
+    D --> E["train_random_forest<br/>(Ordinal + OHE + DateDelta + TF-IDF + RF)"]
+    E --> F["test_regression_model<br/>(Evaluate :prod Artifact on Test)"]
 ```
 
-- **Multimodal Preprocessing (`src/train_random_forest/`)**: `ColumnTransformer` combining `OrdinalEncoder` (`room_type`), `OneHotEncoder` (`neighbourhood_group`), `SimpleImputer` + date-delta `FunctionTransformer` (`last_review`), `TfidfVectorizer` (`name` free-text listing title), and `RandomForestRegressor`.
-- **Statistical & Schema Data Tests (`src/data_check/`)**: Enforces column schema invariants, price bounds (`$10`–`$1,000`), NYC borough names, coordinate bounding boxes, and non-parametric SciPy KL-divergence (`kl_threshold = 0.2`) against reference distribution artifacts.
+### Automated `src/data_check/` Pytest Contract Suite
+1. **`test_column_names`** — Enforces exact 16-column schema order and types.
+2. **`test_neighborhood_names`** — Verifies strict membership in `{Bronx, Brooklyn, Manhattan, Queens, Staten Island}`.
+3. **`test_proper_boundaries`** — Asserts `longitude ∈ [-74.25, -73.50]` and `latitude ∈ [40.50, 41.20]` (caught corrupted coordinates in `sample2.csv` prior to training).
+4. **`test_similar_neigh_distrib`** — Computes discrete **Kullback-Leibler divergence** (`scipy.stats.entropy`) against reference artifact `clean_sample:reference` enforcing `KL < 0.20`.
+5. **`test_row_count`** — Enforces `15,000 < n_rows < 100,000`.
 
 ---
 
-## Repository Structure
-
-```text
-nyc-rental-pricing-mlflow-pipeline/
-├── MLproject                    # Root MLflow orchestrator entrypoints
-├── main.py                      # Hydra-configured pipeline runner & step dispatcher
-├── config.yaml                  # Centralized data, validation, and RF hyperparameters
-├── EDA.ipynb                    # Exploratory analysis notebook
-├── src/
-│   ├── basic_cleaning/          # Geospatial & price outlier filtering component
-│   ├── data_check/              # Pytest + KL-divergence data contract suite
-│   ├── eda/                     # Profiling step
-│   └── train_random_forest/     # Multimodal sklearn pipeline trainer & W&B exporter
-├── components/
-│   ├── get_data/                # Artifact ingestion component
-│   ├── train_val_test_split/    # Deterministic dataset splitter
-│   ├── test_regression_model/   # Held-out test evaluator against :prod model
-│   └── wandb_utils/             # Shared artifact logging utilities
-└── images/
-    └── feature_importance.png   # Exported Random Forest feature importances
-```
-
----
-
-## Quick Start
+## 4. Quick Start & Hydra Multi-Run Execution
 
 ```bash
 conda env create -f environment.yml
 conda activate nyc_airbnb_dev
 wandb login
 
-# Execute full training & validation DAG
+# Run full end-to-end training & validation DAG
 mlflow run .
 
-# Run Hydra multi-run hyperparameter sweep
+# Launch Hydra multi-run hyperparameter grid sweep
 mlflow run .   -P hydra_options="rf_pipeline.random_forest.max_depth=10,15,20 rf_pipeline.random_forest.max_features=0.3,0.5 -m"
 
-# Evaluate champion production artifact on held-out test split
-mlflow run . -P steps=test_regression_model
+# Evaluate promoted production artifact on held-out test split
+mlflow run .   -P steps=test_regression_model   -P hydra_options="main.execute_steps=['test_regression_model']"
 ```
 
 ## License

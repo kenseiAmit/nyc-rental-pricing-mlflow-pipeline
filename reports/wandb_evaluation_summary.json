@@ -1,0 +1,69 @@
+{
+  "pipeline": "nyc-rental-pricing-mlflow-pipeline",
+  "data_validation_gates": {
+    "price_bounds_usd": [
+      10,
+      1000
+    ],
+    "nyc_longitude_bounds": [
+      -74.25,
+      -73.5
+    ],
+    "nyc_latitude_bounds": [
+      40.5,
+      41.2
+    ],
+    "kl_divergence_threshold": 0.2,
+    "pytest_contracts": [
+      "test_column_names",
+      "test_neighborhood_names",
+      "test_proper_boundaries",
+      "test_similar_neigh_distrib",
+      "test_row_count"
+    ]
+  },
+  "tracked_runs": [
+    {
+      "run_id": "rhbtd3xn",
+      "stage": "hydra_sweep_1",
+      "val_mae": 34.1276,
+      "val_r2": 0.5519
+    },
+    {
+      "run_id": "d6iy3dld",
+      "stage": "hydra_sweep_2",
+      "val_mae": 34.1162,
+      "val_r2": 0.5553
+    },
+    {
+      "run_id": "ewkmehcz",
+      "stage": "hydra_sweep_3",
+      "val_mae": 34.1189,
+      "val_r2": 0.5551
+    },
+    {
+      "run_id": "ytbddfad",
+      "stage": "hydra_sweep_4",
+      "val_mae": 33.9751,
+      "val_r2": 0.5609
+    },
+    {
+      "run_id": "k5w553gw",
+      "stage": "hydra_sweep_5_best",
+      "val_mae": 33.9354,
+      "val_r2": 0.5598
+    },
+    {
+      "run_id": "j96yazwl",
+      "stage": "test_regression_model_v1.0.0",
+      "test_mae": 33.2367,
+      "test_r2": 0.5777
+    },
+    {
+      "run_id": "j3h6yvra",
+      "stage": "retrained_sample2_v1.0.1",
+      "val_mae": 32.415,
+      "val_r2": 0.5799
+    }
+  ]
+}
