@@ -12,6 +12,8 @@
 
 ---
 
+![NYC Rental Pricing — 6-Stage MLflow, Hydra & W&B DAG Blueprint](docs/images/architecture_blueprint.png)
+
 End-to-end reproducible machine learning workflow for predicting nightly short-term rental prices across New York City's five boroughs (`$10–$1,000/night`). Orchestrated as a multi-environment **MLflow Project** parameterized with **Hydra** (`-m` grid sweeps), tracked end-to-end with **Weights & Biases** data/model lineage, and guarded by automated **Pytest + SciPy KL-divergence** statistical data contracts.
 
 ---
